@@ -1,6 +1,7 @@
 from typing import Any, List
 
-from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt
+from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt, Var, Variable, Assign
+from src.common.environment import Environment
 from src.common.visitor import visitor
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType
@@ -8,6 +9,9 @@ from src.error_handler import LoxRuntimeError, runtime_error
 
 
 class Interpreter:
+
+    def __init__(self):
+        self.environment = Environment()
 
     def interpret(self, statments: List[Stmt]):
         try:
@@ -32,6 +36,25 @@ class Interpreter:
         value = self.evaluate(stmt.expression)
         print(self.stringify(value))
         return None
+
+    @visitor(Var)
+    def visit(self, stmt: Var):
+        value = None
+        if stmt.initializer is not None:
+            value = self.evaluate(stmt.initializer)
+
+        self.environment.define(stmt.name.lexeme, value)
+        return None
+
+    @visitor(Assign)
+    def visit(self, expr: Assign):
+        value = self.evaluate(expr.value)
+        self.environment.assign(expr.name, value)
+        return value
+
+    @visitor(Variable)
+    def visit(self, expr: Variable):
+        return self.environment.get(expr.name)
 
     @visitor(Literal)
     def visit(self, expr: Literal):

@@ -3,7 +3,6 @@ from pathlib import Path
 from src.lexer.scanner import Scanner
 from src.parser.interpreter import Interpreter
 from src.parser.rec_des_parser import Parser
-from src.asts.ast_printer import AstPrinter
 from src import error_handler
 
 PATHLIKE = Path | str

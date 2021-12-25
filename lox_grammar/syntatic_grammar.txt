@@ -27,15 +27,25 @@ operator   --> "==" | "!=" | "<" | "<=" | ">" | ">="
 ********* Expressions & Precedence **********
 *********************************************
 
-expression --> equality;
+expression --> assignment;
+
+assignment --> IDENTIFIER "=" assignment
+             | equality;
+
 equality   --> comparison ( ( "!=" | "==" ) comparison )* ;
+
 comparison --> term ( ( ">" | ">=" | "<" | "<=" ) term )* ;
+
 term       --> factor ( ( "-" | "+" ) factor )* ;
+
 factor     --> unary ( ( "/" | "*" ) unary )* ;
+
 unary      --> ( "!" | "-" ) unary
              | primary;
+
 primary    --> NUMBER | STRING | "true" | "false" | "nil"
-             | "(" expression ")" ;
+             | "(" expression ")"
+             | IDENTIFIER ;
 
 
 
@@ -43,11 +53,29 @@ primary    --> NUMBER | STRING | "true" | "false" | "nil"
 ********** Statements **********
 ********************************
 
-program   -> statement* EOF ;
+program   --> statement* EOF ;
 
-statement -> exprStmt
-           | printStmt ;
+statement --> exprStmt
+            | printStmt ;
 
-exprStmt  -> expression ";" ;
+exprStmt  --> expression ";" ;
 
-printStmt -> "print" expression ";" ;
+printStmt --> "print" expression ";" ;
+
+
+
+********************************
+********** Declrations *********
+********************************
+
+program     --> declaration* EOF ;
+
+declaration --> varDecl
+              | statement;
+
+statement   --> exprStmt
+              | printStmt ;
+
+varDecl     --> "var" IDENTIFIER ( "=" expression )? ";" ;
+
+

@@ -9,6 +9,12 @@ class Expr:
 
 
 @dataclass
+class Assign(Expr):
+    name: Token
+    value: Expr
+
+
+@dataclass
 class Binary(Expr):
     left: Expr
     operator: Token
@@ -31,6 +37,11 @@ class Unary(Expr):
     right: Expr
 
 
+@dataclass
+class Variable(Expr):
+    name: Token
+
+
 class Stmt:
     pass
 
@@ -43,3 +54,9 @@ class Expression(Stmt):
 @dataclass
 class Print(Stmt):
     expression: Expr
+
+
+@dataclass
+class Var(Stmt):
+    name: Token
+    initializer: Expr

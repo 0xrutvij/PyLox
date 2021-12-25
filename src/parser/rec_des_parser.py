@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression
+from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression, Var, Variable, Assign
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
 from src.error_handler import parsing_error, ParseError
@@ -17,9 +17,29 @@ class Parser:
         statements: List[Stmt] = []
 
         while not self.is_at_end():
-            statements.append(self.statement())
+            statements.append(self.declaration())
 
         return statements
+
+    def declaration(self) -> Stmt | None:
+        try:
+            if self.match({Tt.VAR}):
+                return self.var_declaration()
+            return self.statement()
+        except ParseError:
+            self.synchronize()
+            return None
+
+    def var_declaration(self):
+        name: Token = self.consume(Tt.IDENTIFIER, "Expect variable name.")
+
+        initializer: Expr | None = None
+
+        if self.match({Tt.EQUAL}):
+            initializer = self.expression()
+
+        self.consume(Tt.SEMICOLON, "Expect ';' after variable declaration.")
+        return Var(name, initializer)
 
     def statement(self) -> Stmt:
         if self.match({Tt.PRINT}):
@@ -38,7 +58,22 @@ class Parser:
         return Expression(expr)
 
     def expression(self) -> Expr:
-        return self.equality()
+        return self.assignment()
+
+    def assignment(self) -> Expr:
+        expr: Expr = self.equality()
+
+        if self.match({Tt.EQUAL}):
+            equals: Token = self.previous()
+            value: Expr = self.assignment()
+
+            if isinstance(expr, Variable):
+                name: Token = expr.name
+                return Assign(name, value)
+
+            self.error(equals, "Invalid assignment target.")
+
+        return expr
 
     def equality(self) -> Expr:
         expr: Expr = self.comparison()
@@ -116,6 +151,10 @@ class Parser:
                 expr: Expr = self.expression()
                 self.consume(Tt.RIGHT_PAREN, "Expect ')' after expression.")
                 return Grouping(expr)
+
+            case Tt.IDENTIFIER:
+                self.advance()
+                return Variable(self.previous())
 
             case _:
                 raise self.error(self.peek(), "Expect expression.")
