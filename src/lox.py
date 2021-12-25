@@ -1,6 +1,8 @@
 from sys import argv, exit
 from pathlib import Path
 from src.lexer.scanner import Scanner
+from src.parser.rec_des_parser import Parser
+from src.asts.ast_printer import AstPrinter
 from src import error_handler
 
 PATHLIKE = Path | str
@@ -45,8 +47,13 @@ def run_prompt():
 
 def run(source: str):
     tokens = Scanner(source).scan_tokens()
-    for token in tokens:
-        print(token)
+    parser = Parser(tokens)
+    expression = parser.parse()
+
+    if error_handler.had_error:
+        return
+
+    print(AstPrinter().visit(expression))
 
 
 if __name__ == "__main__":
