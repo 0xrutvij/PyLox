@@ -6,6 +6,9 @@ from src.lexer.token_type import TokenType
 
 class AstPrinter:
 
+    def print(self, expr: Expr):
+        return self.visit(expr)
+
     @visitor(Binary)
     def visit(self, expr: Binary):
         return paranthesize("", expr.operator.lexeme, expr.left, expr.right)
