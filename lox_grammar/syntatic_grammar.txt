@@ -1,0 +1,24 @@
+
+********************************
+********* Expressions **********
+********************************
+
+Literals: Numbers, strings, Booleans, and nil.
+
+Unary expressions: A prefix ! to perform logical not, and - to negate a number.
+
+Binary expressions: The infix arithmetic (+, -, *, /) and logic operators (==, !=, <, <=, >, >=)
+
+Parentheses: A pair of ( and ) wrapped around an expression.
+
+expression --> literal
+             | unary
+             | binary
+             | grouping ;
+
+literal    --> NUMBER | STRING | "true" | "false" | "nil" ;
+grouping   --> "(" expression ")" ;
+unary      --> ("-" | "!") expression ;
+binary     --> expression operator expression ;
+operator   --> "==" | "!=" | "<" | "<=" | ">" | ">="
+             | "+"  | "-"  | "*" |  "/" ;
