@@ -53,15 +53,12 @@ def run_prompt(interp: Interpreter):
 def run(source: str, interp: Interpreter):
     tokens = Scanner(source).scan_tokens()
     parser = Parser(tokens)
-    expression = parser.parse()
+    statements = parser.parse()
 
     if error_handler.had_error:
         return
 
-    interp.interpret(expression)
-
-    if DEBUG_MODE:
-        print(AstPrinter().print(expression))
+    interp.interpret(statements)
 
 
 if __name__ == "__main__":

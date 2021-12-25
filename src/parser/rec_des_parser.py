@@ -1,6 +1,6 @@
 from typing import List, Set
 
-from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping
+from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
 from src.error_handler import parsing_error, ParseError
@@ -8,17 +8,34 @@ from src.error_handler import parsing_error, ParseError
 
 class Parser:
 
-    current: int
-
     def __init__(self, tokens: List[Token]):
         self.tokens = tokens
         self.current = 0
 
-    def parse(self) -> Expr | None:
-        try:
-            return self.expression()
-        except ParseError:
-            return None
+    def parse(self) -> List[Stmt]:
+
+        statements: List[Stmt] = []
+
+        while not self.is_at_end():
+            statements.append(self.statement())
+
+        return statements
+
+    def statement(self) -> Stmt:
+        if self.match({Tt.PRINT}):
+            return self.print_statement()
+
+        return self.expression_statement()
+
+    def print_statement(self) -> Stmt:
+        value: Expr = self.expression()
+        self.consume(Tt.SEMICOLON, "Expect ';' after value.")
+        return Print(value)
+
+    def expression_statement(self) -> Stmt:
+        expr: Expr = self.expression()
+        self.consume(Tt.SEMICOLON, "Expect ';' after value.")
+        return Expression(expr)
 
     def expression(self) -> Expr:
         return self.equality()

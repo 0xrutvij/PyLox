@@ -1,6 +1,6 @@
-from typing import Any
+from typing import Any, List
 
-from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary
+from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt
 from src.common.visitor import visitor
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType
@@ -9,15 +9,29 @@ from src.error_handler import LoxRuntimeError, runtime_error
 
 class Interpreter:
 
-    def interpret(self, expr: Expr):
+    def interpret(self, statments: List[Stmt]):
         try:
-            val = self.evaluate(expr)
-            print(self.stringify(val))
+            for statement in statments:
+                self.execute(statement)
         except LoxRuntimeError as err:
             runtime_error(err)
 
+    def execute(self, stmt: Stmt):
+        return self.visit(stmt)
+
     def evaluate(self, expr: Expr):
         return self.visit(expr)
+
+    @visitor(Expression)
+    def visit(self, stmt: Expression):
+        self.evaluate(stmt.expression)
+        return None
+
+    @visitor(Print)
+    def visit(self, stmt: Print):
+        value = self.evaluate(stmt.expression)
+        print(self.stringify(value))
+        return None
 
     @visitor(Literal)
     def visit(self, expr: Literal):
