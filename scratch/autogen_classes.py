@@ -4,7 +4,7 @@ from typing import TypedDict, Dict
 import sys
 sys.path.append("/Users/rutvijshah/PycharmProjects/pylox")
 
-from lox.lexer.token import Token
+from src.lexer.token import Token
 
 
 class Expr(ABC):

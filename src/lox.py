@@ -1,7 +1,7 @@
 from sys import argv, exit
 from pathlib import Path
-from lox.lexer.scanner import Scanner
-from lox import error_handler
+from src.lexer.scanner import Scanner
+from src import error_handler
 
 PATHLIKE = Path | str
 

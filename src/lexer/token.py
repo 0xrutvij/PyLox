@@ -1,6 +1,6 @@
 from typing import Any
 
-from lox.lexer.token_type import TokenType
+from src.lexer.token_type import TokenType
 
 
 class Token:

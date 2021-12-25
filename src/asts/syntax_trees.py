@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Any
 
-from lox.lexer.token import Token
+from src.lexer.token import Token
 
 
 class Expr:

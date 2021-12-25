@@ -1,7 +1,7 @@
-from lox.common.visitor import visitor
-from lox.asts.syntax_trees import Expr, Binary, Grouping, Literal, Unary
-from lox.lexer.token import Token
-from lox.lexer.token_type import TokenType
+from src.common.visitor import visitor
+from src.asts.syntax_trees import Expr, Binary, Grouping, Literal, Unary
+from src.lexer.token import Token
+from src.lexer.token_type import TokenType
 
 
 class AstPrinter:

@@ -1,8 +1,8 @@
 from typing import List, Any
 
-from lox.lexer.token import Token
-from lox.lexer.token_type import TokenType, keywords
-from lox.error_handler import error
+from src.lexer.token import Token
+from src.lexer.token_type import TokenType, keywords
+from src.error_handler import error
 
 
 class Scanner:
