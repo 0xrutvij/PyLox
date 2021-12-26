@@ -1,12 +1,13 @@
 from typing import Any, List
 
-from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt, Var, Variable, \
-    Assign, Block, If, Logical
+from src.asts.syntax_trees import (Literal, Grouping, Expr, Unary, Binary,
+                                   Expression, Print, Stmt, Var, Variable,
+                                   Assign, Block, If, Logical, While)
 from src.common.environment import Environment
 from src.common.visitor import visitor
+from src.error_handler import LoxRuntimeError, runtime_error
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType
-from src.error_handler import LoxRuntimeError, runtime_error
 
 
 class Interpreter:
@@ -72,6 +73,14 @@ class Interpreter:
             value = self.evaluate(stmt.initializer)
 
         self.environment.define(stmt.name.lexeme, value)
+        return None
+
+    @visitor(While)
+    def visit(self, stmt: While):
+
+        while self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.body)
+
         return None
 
     @visitor(Assign)

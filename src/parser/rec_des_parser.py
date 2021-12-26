@@ -1,10 +1,11 @@
 from typing import List, Set
 
-from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression, Var, Variable, \
-    Assign, Block, If, Logical
+from src.asts.syntax_trees import (Expr, Binary, Unary, Literal, Grouping,
+                                   Stmt, Print, Expression, Var, Variable,
+                                   Assign, Block, If, Logical, While)
+from src.error_handler import parsing_error, ParseError
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
-from src.error_handler import parsing_error, ParseError
 
 
 class Parser:
@@ -49,8 +50,18 @@ class Parser:
             return Block(self.block())
         elif self.match({Tt.IF}):
             return self.if_statement()
+        elif self.match({Tt.WHILE}):
+            return self.while_statement()
 
         return self.expression_statement()
+
+    def while_statement(self):
+        self.consume(Tt.LEFT_PAREN, "Expect '(' after 'while'.")
+        condition: Expr = self.expression()
+        self.consume(Tt.RIGHT_PAREN, "Expect ')' after condition.")
+        body: Stmt = self.statement()
+
+        return While(condition, body)
 
     def if_statement(self) -> Stmt:
         self.consume(Tt.LEFT_PAREN, "Expect '(' after 'if'.")

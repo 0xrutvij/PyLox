@@ -1,8 +1,8 @@
 from typing import List, Any
 
+from src.error_handler import error
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType, keywords
-from src.error_handler import error
 
 
 class Scanner:

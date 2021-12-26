@@ -1,10 +1,7 @@
-from abc import ABC
-from typing import TypedDict, Dict
-
 import sys
-sys.path.append("/Users/rutvijshah/PycharmProjects/pylox")
+from abc import ABC
 
-from src.lexer.token import Token
+sys.path.append("/Users/rutvijshah/PycharmProjects/pylox")
 
 
 class Expr(ABC):

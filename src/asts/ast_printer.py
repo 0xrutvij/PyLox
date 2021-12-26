@@ -1,5 +1,5 @@
-from src.common.visitor import visitor
 from src.asts.syntax_trees import Expr, Binary, Grouping, Literal, Unary
+from src.common.visitor import visitor
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType
 
