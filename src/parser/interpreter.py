@@ -2,18 +2,24 @@ from typing import Any, List
 
 from src.asts.syntax_trees import (Literal, Grouping, Expr, Unary, Binary,
                                    Expression, Print, Stmt, Var, Variable,
-                                   Assign, Block, If, Logical, While)
+                                   Assign, Block, If, Logical, While, Call, Function)
 from src.common.environment import Environment
+from src.common.lox_callable import LoxCallable
+from src.common.lox_function import LoxFunction
 from src.common.visitor import visitor
 from src.error_handler import LoxRuntimeError, runtime_error
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType
+from src.parser.native_functions import NativeClock
 
 
 class Interpreter:
 
     def __init__(self):
-        self.environment = Environment()
+        self.globals = Environment()
+        self.environment = self.globals
+
+        self.globals.define("clock", NativeClock())
 
     def interpret(self, statments: List[Stmt]):
         try:
@@ -40,6 +46,12 @@ class Interpreter:
     def evaluate(self, expr: Expr):
         # noinspection PyTypeChecker
         return self.visit(expr)
+
+    @visitor(Function)
+    def visit(self, stmt: Function):
+        function: LoxFunction = LoxFunction(stmt)
+        self.environment.define(stmt.name.lexeme, function)
+        return None
 
     @visitor(Block)
     def visit(self, stmt: Block):
@@ -179,6 +191,24 @@ class Interpreter:
                     raise LoxRuntimeError(expr.operator, "Operands must be two numbers or two strings.")
 
         return None
+
+    @visitor(Call)
+    def visit(self, expr: Call):
+        callee = self.evaluate(expr.callee)
+
+        arguments = []
+
+        for argument in expr.arguments:
+            arguments.append(self.evaluate(argument))
+
+        if not isinstance(callee, LoxCallable):
+            raise LoxRuntimeError(expr.paren, "Can only call functions and classes.")
+
+        function: LoxCallable = callee
+        if len(arguments) != function.arity():
+            raise LoxRuntimeError(expr.paren,
+                                  f"Expected {function.arity()} arguments but got {len(arguments)}.")
+        return function.call(self, arguments)
 
     @staticmethod
     def is_truthy(obj: Any) -> bool:

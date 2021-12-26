@@ -22,6 +22,13 @@ class Binary(Expr):
 
 
 @dataclass
+class Call(Expr):
+    callee: Expr
+    paren: Token
+    arguments: List[Expr]
+
+
+@dataclass
 class Grouping(Expr):
     expression: Expr
 
@@ -61,6 +68,13 @@ class Block(Stmt):
 @dataclass
 class Expression(Stmt):
     expression: Expr
+
+
+@dataclass
+class Function(Stmt):
+    name: Token
+    params: List[Token]
+    body: List[Stmt]
 
 
 @dataclass

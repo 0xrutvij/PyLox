@@ -40,8 +40,9 @@ term       --> factor ( ( "-" | "+" ) factor )* ;
 
 factor     --> unary ( ( "/" | "*" ) unary )* ;
 
-unary      --> ( "!" | "-" ) unary
-             | primary;
+unary      --> ("!" | "-" ) unary | call ;
+
+call       --> primary ( "(" arguments? ")" )* ;
 
 primary    --> NUMBER | STRING | "true" | "false" | "nil"
              | "(" expression ")"
@@ -70,7 +71,8 @@ printStmt --> "print" expression ";" ;
 
 program     --> declaration* EOF ;
 
-declaration --> varDecl
+declaration --> funDecl
+              | varDecl
               | statement;
 
 statement   --> exprStmt
@@ -78,6 +80,9 @@ statement   --> exprStmt
 
 varDecl     --> "var" IDENTIFIER ( "=" expression )? ";" ;
 
+funDecl     --> "fun" function ;
+function    --> IDENTIFIER "(" parameters? ")" block ;
+parameters  --> IDENTIFIER ( "," IDENTIFIER )* ;
 
 
 *********************************
@@ -118,13 +123,18 @@ logic_and       --> equality ("and" equality )* ;
 
 
 *************************************
-************  While Loops ***********
+************** Loops ****************
 *************************************
 
 statement      --> exprStmt
+                 | forStmt
                  | ifStmt
                  | printStmt
                  | whileStmt
                  | block ;
 
 whileStmt      --> "while" "(" expression ")" statement;
+
+forStmt        --> "for" "(" ( varDecl | exprStmt | ";" )
+                    expression? ";"
+                    expression? ")" statement ;
