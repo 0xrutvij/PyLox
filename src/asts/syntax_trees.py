@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, List
 
 from src.lexer.token import Token
 
@@ -47,8 +47,20 @@ class Stmt:
 
 
 @dataclass
+class Block(Stmt):
+    statements: List[Stmt]
+
+
+@dataclass
 class Expression(Stmt):
     expression: Expr
+
+
+@dataclass
+class If(Stmt):
+    condition: Expr
+    then_branch: Stmt
+    else_branch: Stmt
 
 
 @dataclass

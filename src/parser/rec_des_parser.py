@@ -1,6 +1,7 @@
 from typing import List, Set
 
-from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression, Var, Variable, Assign
+from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression, Var, Variable, \
+    Assign, Block, If
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
 from src.error_handler import parsing_error, ParseError
@@ -44,8 +45,24 @@ class Parser:
     def statement(self) -> Stmt:
         if self.match({Tt.PRINT}):
             return self.print_statement()
+        elif self.match({Tt.LEFT_BRACE}):
+            return Block(self.block())
+        elif self.match({Tt.IF}):
+            return self.if_statement()
 
         return self.expression_statement()
+
+    def if_statement(self) -> Stmt:
+        self.consume(Tt.LEFT_PAREN, "Expect '(' after 'if'.")
+        condition: Expr = self.expression()
+        self.consume(Tt.RIGHT_PAREN, "Expect ')' after if condition.")
+
+        then_branch: Stmt = self.statement()
+        else_branch: Stmt | None = None
+        if self.match({Tt.ELSE}):
+            else_branch = self.statement()
+
+        return If(condition, then_branch, else_branch)
 
     def print_statement(self) -> Stmt:
         value: Expr = self.expression()
@@ -56,6 +73,17 @@ class Parser:
         expr: Expr = self.expression()
         self.consume(Tt.SEMICOLON, "Expect ';' after value.")
         return Expression(expr)
+
+    def block(self):
+        statements: List[Stmt] = []
+
+        curr_tok = self.check()
+        while (not curr_tok == Tt.RIGHT_BRACE) and (not self.is_at_end()):
+            statements.append(self.declaration())
+            curr_tok = self.check()
+
+        self.consume(Tt.RIGHT_BRACE, "Expect '}' after block.")
+        return statements
 
     def expression(self) -> Expr:
         return self.assignment()
@@ -205,8 +233,8 @@ class Parser:
             if self.previous().type == Tt.SEMICOLON:
                 return
 
-            if self.peek().type in {Tt.CLASS, Tt. FUN, Tt.VAR, Tt.FOR,
-                                    Tt.IF, Tt.WHILE, Tt.PRINT. Tt.RETURN}:
+            if self.peek().type in {Tt.CLASS, Tt.FUN, Tt.VAR, Tt.FOR,
+                                    Tt.IF, Tt.WHILE, Tt.PRINT, Tt.RETURN}:
                 return
 
         self.advance()

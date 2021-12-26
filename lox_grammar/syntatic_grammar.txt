@@ -79,3 +79,27 @@ statement   --> exprStmt
 varDecl     --> "var" IDENTIFIER ( "=" expression )? ";" ;
 
 
+
+*********************************
+********** Block Scopes *********
+*********************************
+
+statement --> exprStmt
+            | printStmt
+            | block ;
+
+block     --> "{" declaration* "}" ;
+
+
+
+*********************************
+***** Conditional Execution *****
+*********************************
+
+statement     --> exprStmt
+                | ifStmt
+                | printStmt
+                | block ;
+
+ifStmt        --> "if" "(" expression ")" statement
+                ( "else" statement )? ;

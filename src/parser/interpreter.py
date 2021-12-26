@@ -1,6 +1,7 @@
 from typing import Any, List
 
-from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt, Var, Variable, Assign
+from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt, Var, Variable, \
+    Assign, Block, If
 from src.common.environment import Environment
 from src.common.visitor import visitor
 from src.lexer.token import Token
@@ -21,14 +22,41 @@ class Interpreter:
             runtime_error(err)
 
     def execute(self, stmt: Stmt):
+        # noinspection PyTypeChecker
         return self.visit(stmt)
 
+    def execute_block(self, statements: List[Stmt], environ: Environment):
+
+        previous: Environment = self.environment
+        try:
+            self.environment = environ
+
+            for stmt in statements:
+                self.execute(stmt)
+        finally:
+            self.environment = previous
+
     def evaluate(self, expr: Expr):
+        # noinspection PyTypeChecker
         return self.visit(expr)
+
+    @visitor(Block)
+    def visit(self, stmt: Block):
+        self.execute_block(stmt.statements, Environment(encl=self.environment))
+        return None
 
     @visitor(Expression)
     def visit(self, stmt: Expression):
         self.evaluate(stmt.expression)
+        return None
+
+    @visitor(If)
+    def visit(self, stmt: If):
+        if self.is_truthy(self.evaluate(stmt.condition)):
+            self.execute(stmt.then_branch)
+        elif stmt.else_branch is not None:
+            self.execute(stmt.else_branch)
+
         return None
 
     @visitor(Print)
