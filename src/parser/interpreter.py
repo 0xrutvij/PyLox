@@ -1,7 +1,7 @@
 from typing import Any, List
 
 from src.asts.syntax_trees import Literal, Grouping, Expr, Unary, Binary, Expression, Print, Stmt, Var, Variable, \
-    Assign, Block, If
+    Assign, Block, If, Logical
 from src.common.environment import Environment
 from src.common.visitor import visitor
 from src.lexer.token import Token
@@ -87,6 +87,19 @@ class Interpreter:
     @visitor(Literal)
     def visit(self, expr: Literal):
         return expr.value
+
+    @visitor(Logical)
+    def visit(self, expr: Logical):
+        left = self.evaluate(expr.left)
+
+        if expr.operator.type == TokenType.OR:
+            if self.is_truthy(left):
+                return left
+        else:
+            if not self.is_truthy(left):
+                return left
+
+        return self.evaluate(expr.right)
 
     @visitor(Grouping)
     def visit(self, expr: Grouping):

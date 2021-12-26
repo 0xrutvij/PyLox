@@ -1,7 +1,7 @@
 from typing import List, Set
 
 from src.asts.syntax_trees import Expr, Binary, Unary, Literal, Grouping, Stmt, Print, Expression, Var, Variable, \
-    Assign, Block, If
+    Assign, Block, If, Logical
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
 from src.error_handler import parsing_error, ParseError
@@ -89,7 +89,7 @@ class Parser:
         return self.assignment()
 
     def assignment(self) -> Expr:
-        expr: Expr = self.equality()
+        expr: Expr = self._or()
 
         if self.match({Tt.EQUAL}):
             equals: Token = self.previous()
@@ -100,6 +100,26 @@ class Parser:
                 return Assign(name, value)
 
             self.error(equals, "Invalid assignment target.")
+
+        return expr
+
+    def _or(self) -> Expr:
+        expr: Expr = self._and()
+
+        while self.match({Tt.OR}):
+            operator: Token = self.previous()
+            right: Expr = self._and()
+            expr = Logical(expr, operator, right)
+
+        return expr
+
+    def _and(self) -> Expr:
+        expr: Expr = self.equality()
+
+        while self.match({Tt.AND}):
+            operator: Token = self.previous()
+            right: Expr = self.equality()
+            expr = Logical(expr, operator, right)
 
         return expr
 

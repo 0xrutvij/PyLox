@@ -14,6 +14,11 @@ var c = "global c";
   print b;
   print c;
 }
-print a;
-print b;
+
+if (false) {
+    print a;
+    }
+else
+    print b;
+
 print c;
