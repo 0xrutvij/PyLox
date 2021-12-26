@@ -2,10 +2,11 @@ from typing import Any, List
 
 from src.asts.syntax_trees import (Literal, Grouping, Expr, Unary, Binary,
                                    Expression, Print, Stmt, Var, Variable,
-                                   Assign, Block, If, Logical, While, Call, Function)
+                                   Assign, Block, If, Logical, While, Call, Function, Return)
 from src.common.environment import Environment
 from src.common.lox_callable import LoxCallable
 from src.common.lox_function import LoxFunction
+from src.common.return_unwind import ReturnUnwind
 from src.common.visitor import visitor
 from src.error_handler import LoxRuntimeError, runtime_error
 from src.lexer.token import Token
@@ -46,6 +47,14 @@ class Interpreter:
     def evaluate(self, expr: Expr):
         # noinspection PyTypeChecker
         return self.visit(expr)
+
+    @visitor(Return)
+    def visit(self, stmt: Return):
+        value = None
+        if stmt.value is not None:
+            value = self.evaluate(stmt.value)
+
+        raise ReturnUnwind(value)
 
     @visitor(Function)
     def visit(self, stmt: Function):

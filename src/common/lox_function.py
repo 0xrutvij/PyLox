@@ -3,6 +3,7 @@ from typing import Any, List
 from src.common.lox_callable import LoxCallable
 from src.asts.syntax_trees import Function
 from src.common.environment import Environment
+from src.common.return_unwind import ReturnUnwind
 
 
 class LoxFunction(LoxCallable):
@@ -16,7 +17,10 @@ class LoxFunction(LoxCallable):
         for i, param in enumerate(self.declaration.params):
             env.define(param.lexeme, arguments[i])
 
-        interpreter.execute_block(self.declaration.body, env)
+        try:
+            interpreter.execute_block(self.declaration.body, env)
+        except ReturnUnwind as runw:
+            return runw.value
         return None
 
     def arity(self) -> int:

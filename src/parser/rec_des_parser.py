@@ -2,7 +2,7 @@ from typing import List, Set
 
 from src.asts.syntax_trees import (Expr, Binary, Unary, Literal, Grouping,
                                    Stmt, Print, Expression, Var, Variable,
-                                   Assign, Block, If, Logical, While, Call, Function)
+                                   Assign, Block, If, Logical, While, Call, Function, Return)
 from src.error_handler import parsing_error, ParseError
 from src.lexer.token import Token
 from src.lexer.token_type import TokenType as Tt
@@ -56,6 +56,8 @@ class Parser:
             return self.while_statement()
         elif self.match({Tt.FOR}):
             return self.for_statement()
+        elif self.match({Tt.RETURN}):
+            return self.return_statement()
 
         return self.expression_statement()
 
@@ -122,6 +124,15 @@ class Parser:
         value: Expr = self.expression()
         self.consume(Tt.SEMICOLON, "Expect ';' after value.")
         return Print(value)
+
+    def return_statement(self) -> Stmt:
+        keyword: Token = self.previous()
+        value: Expr | None = None
+        if self.check() != Tt.SEMICOLON:
+            value = self.expression()
+
+        self.consume(Tt.SEMICOLON, "Expect ';' after return value.")
+        return Return(keyword, value)
 
     def expression_statement(self) -> Stmt:
         expr: Expr = self.expression()

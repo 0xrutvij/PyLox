@@ -130,6 +130,7 @@ statement      --> exprStmt
                  | forStmt
                  | ifStmt
                  | printStmt
+                 | returnStmt
                  | whileStmt
                  | block ;
 
@@ -138,3 +139,5 @@ whileStmt      --> "while" "(" expression ")" statement;
 forStmt        --> "for" "(" ( varDecl | exprStmt | ";" )
                     expression? ";"
                     expression? ")" statement ;
+
+return          --> "return" expression? ";" ;
