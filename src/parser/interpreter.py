@@ -21,6 +21,12 @@ class Interpreter:
         self.environment = self.globals
 
         self.globals.define("clock", NativeClock())
+        self.globals.define("exit", type("_exit_lc", (LoxCallable,), {
+            # Generator throw: https://stackoverflow.com/a/8294654
+            "call": lambda *args: (_ for _ in ()).throw(EOFError),
+            "arity": lambda _: 0,
+            "__str__": lambda _: "<native fn>"
+        })())
 
     def interpret(self, statments: List[Stmt]):
         try:

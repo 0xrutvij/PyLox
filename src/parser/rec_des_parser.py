@@ -364,4 +364,4 @@ class Parser:
                                     Tt.IF, Tt.WHILE, Tt.PRINT, Tt.RETURN}:
                 return
 
-        self.advance()
+            self.advance()

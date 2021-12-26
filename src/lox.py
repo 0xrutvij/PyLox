@@ -40,9 +40,6 @@ def run_prompt(interp: Interpreter):
     while True:
         try:
             line = input("> ")
-            if line == "quit;":
-                print("\nThe only way to learn a new programming language is by writing programs in it. - K&R")
-                break
             run(line, interp)
             error_handler.had_error = False
         except EOFError:
