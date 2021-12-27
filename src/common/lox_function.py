@@ -8,11 +8,12 @@ from src.common.return_unwind import ReturnUnwind
 
 class LoxFunction(LoxCallable):
 
-    def __init__(self, declaration: Function):
+    def __init__(self, declaration: Function, closure: Environment):
         self.declaration = declaration
+        self.closure = closure
 
     def call(self, interpreter, arguments: List[Any]) -> Any:
-        env: Environment = Environment(interpreter.globals)
+        env: Environment = Environment(self.closure)
 
         for i, param in enumerate(self.declaration.params):
             env.define(param.lexeme, arguments[i])

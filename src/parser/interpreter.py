@@ -19,6 +19,7 @@ class Interpreter:
     def __init__(self):
         self.globals = Environment()
         self.environment = self.globals
+        self.locals = {}
 
         self.globals.define("clock", NativeClock())
         self.globals.define("exit", type("_exit_lc", (LoxCallable,), {
@@ -54,6 +55,9 @@ class Interpreter:
         # noinspection PyTypeChecker
         return self.visit(expr)
 
+    def resolve(self, expr: Expr, depth: int):
+        self.locals[expr] = depth
+
     @visitor(Return)
     def visit(self, stmt: Return):
         value = None
@@ -64,7 +68,7 @@ class Interpreter:
 
     @visitor(Function)
     def visit(self, stmt: Function):
-        function: LoxFunction = LoxFunction(stmt)
+        function: LoxFunction = LoxFunction(stmt, self.environment)
         self.environment.define(stmt.name.lexeme, function)
         return None
 
@@ -113,12 +117,29 @@ class Interpreter:
     @visitor(Assign)
     def visit(self, expr: Assign):
         value = self.evaluate(expr.value)
-        self.environment.assign(expr.name, value)
+
+        try:
+            distance = self.locals.get(expr, None)
+        except TypeError:
+            distance = None
+
+        if distance is not None:
+            self.environment.assign_at(distance, expr.name, value)
+        else:
+            self.globals.assign(expr.name, value)
+
         return value
 
     @visitor(Variable)
     def visit(self, expr: Variable):
-        return self.environment.get(expr.name)
+        return self.look_up_variable(expr.name, expr)
+
+    def look_up_variable(self, name: Token, expr: Expr):
+        distance = self.locals.get(expr, None)
+        if distance is not None:
+            return self.environment.get_at(distance, name.lexeme)
+        else:
+            return self.globals.get(name)
 
     @visitor(Literal)
     def visit(self, expr: Literal):

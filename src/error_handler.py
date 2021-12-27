@@ -34,6 +34,9 @@ def parsing_error(token: Token, message: str):
         report(token.line, " at '" + token.lexeme + "'", message)
 
 
+resolution_error = parsing_error
+
+
 def runtime_error(err: LoxRuntimeError):
     msg = " ".join(map(str, err.args))
     print(msg + f"\n[line {err.token.line}]")

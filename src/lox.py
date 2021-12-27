@@ -5,6 +5,7 @@ from src import error_handler
 from src.lexer.scanner import Scanner
 from src.parser.interpreter import Interpreter
 from src.parser.rec_des_parser import Parser
+from src.parser.resolver import Resolver
 
 PATHLIKE = Path | str
 DEBUG_MODE = False
@@ -52,6 +53,13 @@ def run(source: str, interp: Interpreter):
     parser = Parser(tokens)
     statements = parser.parse()
 
+    if error_handler.had_error:
+        return
+
+    resolver = Resolver(interp)
+    resolver.resolve(statements)
+
+    # handle resolution errors
     if error_handler.had_error:
         return
 
